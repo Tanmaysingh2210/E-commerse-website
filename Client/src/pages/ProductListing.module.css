@@ -1,0 +1,29 @@
+.toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; }
+.toolbarRight { display: flex; align-items: center; gap: .5rem; }
+.filterDot { width: 7px; height: 7px; background: var(--danger); border-radius: 50%; display: inline-block; }
+.sortWrap select { border-radius: var(--radius); }
+
+.layout { display: grid; grid-template-columns: 220px 1fr; gap: 2rem; align-items: start; }
+
+.sidebar {
+  position: sticky; top: 80px;
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem;
+}
+.filterSection { display: flex; flex-direction: column; gap: .65rem; }
+.filterTitle { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.filterOptions { display: flex; flex-direction: column; gap: .4rem; }
+.filterOption { display: flex; align-items: center; gap: .55rem; font-size: .88rem; cursor: pointer; }
+.filterOption input { accent-color: var(--accent); }
+
+.main { min-width: 0; }
+
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed; inset: 0; z-index: 200;
+    border-radius: 0; overflow-y: auto;
+    transform: translateX(-100%); transition: transform .25s;
+  }
+  .sidebarOpen { transform: translateX(0); }
+}
