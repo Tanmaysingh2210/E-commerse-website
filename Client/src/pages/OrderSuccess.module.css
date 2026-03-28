@@ -1,0 +1,24 @@
+.card { max-width: 640px; margin: 0 auto; text-align: center; padding: 2.5rem 2rem; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.icon { color: var(--success); display: flex; justify-content: center; margin-bottom: 1rem; }
+.title { font-size: 1.75rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: .5rem; }
+.sub { color: var(--muted); font-size: .95rem; margin-bottom: 2rem; }
+
+.orderMeta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; text-align: left; background: var(--surface); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.75rem; }
+.metaItem { display: flex; flex-direction: column; gap: .2rem; }
+.metaLabel { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+.tracker { display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 0; }
+.trackerStep { display: flex; flex-direction: column; align-items: center; gap: .4rem; font-size: .75rem; color: var(--muted); min-width: 70px; }
+.trackerDone { color: var(--success); }
+.trackerDot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg); transition: all .2s; }
+.trackerDone .trackerDot { background: var(--success); border-color: var(--success); }
+.trackerLine { flex: 1; height: 2px; background: var(--border); min-width: 30px; margin-bottom: 16px; }
+.trackerLineDone { background: var(--success); }
+
+.items { text-align: left; display: flex; flex-direction: column; gap: .75rem; margin-bottom: 2rem; }
+.item { display: flex; align-items: center; gap: .85rem; padding: .85rem; background: var(--surface); border-radius: var(--radius); }
+.item img { width: 50px; height: 62px; object-fit: cover; border-radius: 6px; }
+.itemInfo { flex: 1; font-size: .88rem; font-weight: 500; }
+.itemMeta { font-size: .78rem; color: var(--muted); margin-top: .15rem; }
+
+.actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }

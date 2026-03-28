@@ -1,0 +1,43 @@
+.layout { display: grid; grid-template-columns: 1fr 360px; gap: 2.5rem; align-items: start; }
+
+/* Items */
+.items { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.item { display: grid; grid-template-columns: 100px 1fr auto; gap: 1.25rem; padding: 1.25rem; border-bottom: 1px solid var(--border); align-items: center; }
+.item:last-child { border-bottom: none; }
+.itemImg { width: 100px; height: 125px; object-fit: cover; border-radius: var(--radius); background: var(--surface); }
+.itemInfo { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+.itemName { font-weight: 600; font-size: .95rem; line-height: 1.35; }
+.itemName:hover { text-decoration: underline; }
+.itemMeta { font-size: .82rem; color: var(--muted); }
+.itemPrice { font-size: .95rem; font-weight: 500; margin-top: .25rem; }
+
+.itemActions { display: flex; flex-direction: column; align-items: flex-end; gap: .75rem; }
+.qty { display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.qty button { width: 34px; height: 34px; font-size: 1rem; font-weight: 500; transition: background .15s; }
+.qty button:hover:not(:disabled) { background: var(--surface); }
+.qty button:disabled { opacity: .35; cursor: not-allowed; }
+.qty span { width: 38px; text-align: center; font-weight: 600; font-size: .9rem; }
+.lineTotal { font-weight: 700; font-size: .95rem; }
+.removeBtn { color: var(--muted); display: flex; padding: .25rem; border-radius: 4px; transition: color .15s; }
+.removeBtn:hover { color: var(--danger); }
+
+/* Summary */
+.summary { position: sticky; top: 80px; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; }
+.summaryTitle { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; }
+
+.couponForm { display: flex; gap: .5rem; }
+.couponApplied { display: flex; align-items: center; justify-content: space-between; background: #dcfce7; border-radius: var(--radius); padding: .65rem .9rem; }
+.couponApplied div { display: flex; align-items: center; gap: .5rem; font-size: .88rem; color: var(--success); }
+.couponApplied button { color: var(--success); display: flex; }
+
+.summaryRows { display: flex; flex-direction: column; gap: .65rem; }
+.summaryRow { display: flex; justify-content: space-between; font-size: .9rem; color: var(--muted); }
+.discount { color: var(--success); }
+.freeShippingNote { font-size: .78rem; color: var(--muted); margin-top: .5rem; text-align: center; }
+.totalRow { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.1rem; }
+
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .summary { position: static; } }
+@media (max-width: 560px) {
+  .item { grid-template-columns: 80px 1fr; }
+  .itemActions { flex-direction: row; align-items: center; grid-column: 1 / -1; }
+}
