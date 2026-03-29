@@ -1,108 +1,3 @@
-
-
-// require('dotenv').config();
-// const express = require('express');
-// const cookieParser = require('cookie-parser');
-// const cors = require('cors');
-// const helmet = require('helmet');
-// const morgan = require('morgan');
-
-// const connectDB = require('./config/db');
-// const { errorHandler, notFound } = require('./middleware/errorMiddleware');
-// const logger = require('./utils/logger');
-
-// const authRoutes    = require('./routes/authRoutes');
-// const productRoutes = require('./routes/productRoutes');
-// const cartRoutes    = require('./routes/cartRoutes');
-// const orderRoutes   = require('./routes/orderRoutes');
-// const reviewRoutes  = require('./routes/reviewRoutes');
-// const couponRoutes  = require('./routes/couponRoutes');
-// const adminRoutes   = require('./routes/adminRoutes');
-// const paymentRoutes = require('./routes/paymentRoutes');
-
-// connectDB();
-
-// const app = express();
-
-// app.use(helmet());
-
-// const allowedOrigins = [
-//   'https://drip-beryl.vercel.app',
-//   process.env.CLIENT_URL,
-// ].filter(Boolean);
-
-// app.use(cors({
-//   origin: (origin, callback) => {
-//     if (!origin) return callback(null, true);
-//     if (allowedOrigins.includes(origin)) return callback(null, true);
-//     callback(new Error(`CORS blocked: ${origin}`));
-//   },
-//   credentials: true,
-//   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization'],
-// }));
-
-// app.use(express.json({ limit: '10kb' }));
-// app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-// app.use(cookieParser());
-
-
-// const sanitizeBody = (obj) => {
-//   if (!obj || typeof obj !== 'object') return;
-//   for (const key of Object.keys(obj)) {
-//     if (key.startsWith('$')) {
-//       delete obj[key];
-//     } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-//       sanitizeBody(obj[key]);
-//     } else if (typeof obj[key] === 'string') {
-//       obj[key] = obj[key].replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '');
-//     }
-//   }
-// };
-
-// app.use((req, res, next) => {
-//   if (req.body) sanitizeBody(req.body);
-//   next();
-// });
-
-// if (process.env.NODE_ENV === 'development') {
-//   app.use(morgan('dev'));
-// }
-
-// app.get('/api/health', (req, res) => {
-//   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
-// });
-
-// app.use('/api/auth',     authRoutes);
-// app.use('/api/products', productRoutes);
-// app.use('/api/cart',     cartRoutes);
-// app.use('/api/orders',   orderRoutes);
-// app.use('/api/reviews',  reviewRoutes);
-// app.use('/api/coupons',  couponRoutes);
-// app.use('/api/payment',  paymentRoutes);
-// app.use('/api/admin',    adminRoutes);
-
-// app.use(notFound);
-// app.use(errorHandler);
-
-// const PORT = process.env.PORT || 5000;
-// const server = app.listen(PORT, () => {
-//   logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-// });
-
-// process.on('unhandledRejection', (err) => {
-//   logger.error(`Unhandled Rejection: ${err.message}`);
-//   server.close(() => process.exit(1));
-// });
-
-// process.on('uncaughtException', (err) => {
-//   logger.error(`Uncaught Exception: ${err.message}`);
-//   process.exit(1);
-// });
-
-// module.exports = app;
-
-
 require('dotenv').config();
 const express = require('express');
 const cookieParser = require('cookie-parser');
@@ -129,46 +24,43 @@ const app = express();
 
 app.use(helmet());
 
+// ── CORS — must be before any routes ──────────────────────────────────────────
 const allowedOrigins = [
-  'https://drip-beryl.vercel.app',
-  process.env.CLIENT_URL,
-].filter(Boolean);
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3000',
+  'https://drip-beryl.vercel.app',   // your Vercel frontend
+];
 
-// app.use(cors({
-//   origin: function(origin, callback) {
-//     if (!origin) return callback(null, true);
-//     if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
-//     return callback(new Error('CORS blocked: ' + origin));
-//   },
-//   credentials: true,
-//   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization'],
-// }));
+// Also allow any origin set via env var on Render
+if (process.env.CLIENT_URL) {
+  allowedOrigins.push(process.env.CLIENT_URL);
+}
 
-
-// const allowedOrigins = [
-//   'https://drip-beryl.vercel.app',
-// ];
-
-app.use(cors({
-  origin: function (origin, callback) {
+const corsOptions = {
+  origin: function(origin, callback) {
+    // Allow requests with no origin (Postman, curl, mobile apps, Render health checks)
     if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    console.log("Blocked by CORS:", origin); // 👈 debug
-    return callback(new Error("Not allowed by CORS"));
+    if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
+    logger.warn('CORS blocked origin: ' + origin);
+    return callback(new Error('Not allowed by CORS: ' + origin));
   },
   credentials: true,
-}));
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200,  // some browsers send 204 which blocks preflight
+};
 
+// Handle preflight OPTIONS for every route FIRST
+app.use(cors(corsOptions));
+
+// ── Body Parsing ───────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
-const sanitizeBody = function(obj) {
+// ── Sanitize body ──────────────────────────────────────────────────────────────
+var sanitizeBody = function(obj) {
   if (!obj || typeof obj !== 'object') return;
   var keys = Object.keys(obj);
   for (var i = 0; i < keys.length; i++) {
@@ -188,14 +80,15 @@ app.use(function(req, res, next) {
   next();
 });
 
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
+// ── Logging ────────────────────────────────────────────────────────────────────
+app.use(morgan('dev'));
 
+// ── Health Check ───────────────────────────────────────────────────────────────
 app.get('/api/health', function(req, res) {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// ── Routes ─────────────────────────────────────────────────────────────────────
 app.use('/api/auth',     authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart',     cartRoutes);
@@ -205,12 +98,15 @@ app.use('/api/coupons',  couponRoutes);
 app.use('/api/payment',  paymentRoutes);
 app.use('/api/admin',    adminRoutes);
 
+// ── Error Handling ─────────────────────────────────────────────────────────────
 app.use(notFound);
 app.use(errorHandler);
 
+// ── Start Server ───────────────────────────────────────────────────────────────
 var PORT = process.env.PORT || 5000;
 var server = app.listen(PORT, function() {
-  logger.info('Server running in ' + process.env.NODE_ENV + ' mode on port ' + PORT);
+  logger.info('Server running on port ' + PORT);
+  logger.info('Allowed origins: ' + allowedOrigins.join(', '));
 });
 
 process.on('unhandledRejection', function(err) {
