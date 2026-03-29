@@ -7,7 +7,7 @@ const BASE_URL = 'https://drip-backend-3alw.onrender.com/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true,
+  withCredentials: false,
   headers: { 'Content-Type': 'application/json' },
   timeout: 15000,
 });
