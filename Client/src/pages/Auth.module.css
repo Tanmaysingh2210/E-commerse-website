@@ -1,0 +1,19 @@
+.page { min-height: calc(100vh - 64px); display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; background: var(--surface); }
+.card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: var(--shadow); }
+.top { text-align: center; margin-bottom: 2rem; }
+.logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -.03em; display: block; margin-bottom: 1.25rem; }
+.title { font-size: 1.45rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: .35rem; }
+.sub { color: var(--muted); font-size: .9rem; }
+.errorBanner { background: #fee2e2; color: var(--danger); font-size: .875rem; padding: .75rem 1rem; border-radius: var(--radius); margin-bottom: 1.25rem; border: 1px solid #fecaca; }
+.form { display: flex; flex-direction: column; gap: 1.1rem; }
+.pwWrap { position: relative; }
+.pwWrap .form-input { padding-right: 2.75rem; }
+.eyeBtn { position: absolute; right: .85rem; top: 50%; transform: translateY(-50%); color: var(--muted); display: flex; }
+.eyeBtn:hover { color: var(--text); }
+.dividerRow { display: flex; align-items: center; gap: .75rem; margin: 1.25rem 0; color: var(--muted); font-size: .82rem; }
+.dividerLine { flex: 1; height: 1px; background: var(--border); }
+.switch { text-align: center; font-size: .88rem; color: var(--muted); margin-top: 1.25rem; }
+.switch a { color: var(--text); font-weight: 600; }
+.switch a:hover { text-decoration: underline; }
+.terms { font-size: .78rem; color: var(--muted); text-align: center; line-height: 1.6; }
+.terms a { color: var(--text); text-decoration: underline; }

@@ -4,7 +4,7 @@ import MainLayout from './components/layout/MainLayout';
 import AdminLayout from './components/layout/AdminLayout';
 import PrivateRoute from './components/common/PrivateRoute';
 import AdminRoute from './components/common/AdminRoute';
-import Spinner from './components/common/Spinner';
+// import Spinner from './components/common/Spinner';
 
 // ── Lazy-loaded pages ──────────────────────────────────────────────────────────
 const Home = lazy(() => import('./pages/Home'));

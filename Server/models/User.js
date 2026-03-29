@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, 'Email is required'],
-      unique: true,
+      unique: true,       // this alone creates the index — no schema.index() needed
       lowercase: true,
       trim: true,
       match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email'],
@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       minlength: [6, 'Password must be at least 6 characters'],
-      select: false,  // Never returned in queries by default
+      select: false,
     },
     role: {
       type: String,
@@ -29,42 +29,17 @@ const userSchema = new mongoose.Schema(
     },
     googleId: {
       type: String,
-      sparse: true,  // Allows null but enforces uniqueness when set
+      sparse: true,       // sparse index — handles uniqueness + nulls correctly
+      unique: true,       // this alone creates the index
     },
-    avatar: {
-      type: String,
-      default: '',
-    },
-    isEmailVerified: {
-      type: Boolean,
-      default: false,
-    },
-    refreshToken: {
-      type: String,
-      select: false,
-    },
-    passwordResetToken: {
-      type: String,
-      select: false,
-    },
-    passwordResetExpires: {
-      type: Date,
-      select: false,
-    },
-    // Track failed login attempts
-    loginAttempts: {
-      type: Number,
-      default: 0,
-      select: false,
-    },
-    lockUntil: {
-      type: Date,
-      select: false,
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+    avatar: { type: String, default: '' },
+    isEmailVerified: { type: Boolean, default: false },
+    refreshToken: { type: String, select: false },
+    passwordResetToken: { type: String, select: false },
+    passwordResetExpires: { type: Date, select: false },
+    loginAttempts: { type: Number, default: 0, select: false },
+    lockUntil: { type: Date, select: false },
+    isActive: { type: Boolean, default: true },
     addresses: [
       {
         label: { type: String, default: 'Home' },
@@ -84,9 +59,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// ── Indexes ────────────────────────────────────────────────────────────────────
-userSchema.index({ email: 1 });
-userSchema.index({ googleId: 1 });
+// ── NO schema.index() for email or googleId — unique:true above already does it ──
 
 // ── Pre-save: Hash password ────────────────────────────────────────────────────
 userSchema.pre('save', async function (next) {
@@ -109,7 +82,7 @@ userSchema.virtual('isLocked').get(function () {
 // ── Instance method: Increment login attempts ──────────────────────────────────
 userSchema.methods.incLoginAttempts = async function () {
   const MAX_ATTEMPTS = 5;
-  const LOCK_TIME = 2 * 60 * 60 * 1000; // 2 hours
+  const LOCK_TIME = 2 * 60 * 60 * 1000;
 
   if (this.lockUntil && this.lockUntil < Date.now()) {
     return this.updateOne({

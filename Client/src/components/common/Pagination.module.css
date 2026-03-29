@@ -1,0 +1,12 @@
+.wrap { display: flex; align-items: center; justify-content: center; gap: .35rem; margin-top: 2.5rem; flex-wrap: wrap; }
+.btn {
+  min-width: 36px; height: 36px; border-radius: var(--radius);
+  font-size: .85rem; font-weight: 500; color: var(--text);
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border); background: var(--bg);
+  transition: all .15s; cursor: pointer; padding: 0 .4rem;
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.ellipsis { color: var(--muted); font-size: .85rem; padding: 0 .2rem; }

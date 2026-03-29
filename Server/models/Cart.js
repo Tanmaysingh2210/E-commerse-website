@@ -1,20 +1,11 @@
 const mongoose = require('mongoose');
 
 const cartItemSchema = new mongoose.Schema({
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-    min: [1, 'Quantity must be at least 1'],
-    max: [10, 'Cannot add more than 10 of the same item'],
-  },
-  size: { type: String },
-  color: { type: String },
-  price: { type: Number, required: true },  // Snapshot at time of add
+  product:  { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+  quantity: { type: Number, required: true, min: [1, 'Quantity must be at least 1'], max: [10, 'Cannot add more than 10 of the same item'] },
+  size:     { type: String },
+  color:    { type: String },
+  price:    { type: Number, required: true },
 });
 
 const cartSchema = new mongoose.Schema(
@@ -23,13 +14,13 @@ const cartSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      unique: true,
+      unique: true,   // unique:true handles the index — no schema.index() needed
     },
     items: [cartItemSchema],
     appliedCoupon: {
-      code: String,
+      code:           String,
       discountAmount: Number,
-      discountType: String,  // 'percent' | 'flat'
+      discountType:   String,
     },
   },
   {
@@ -39,18 +30,15 @@ const cartSchema = new mongoose.Schema(
   }
 );
 
-// ── Virtual: Subtotal ──────────────────────────────────────────────────────────
+// ── NO schema.index({ user:1 }) — unique:true above already creates it ─────────
+
 cartSchema.virtual('subtotal').get(function () {
   return this.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 });
 
-// ── Virtual: Item count ────────────────────────────────────────────────────────
 cartSchema.virtual('itemCount').get(function () {
   return this.items.reduce((sum, item) => sum + item.quantity, 0);
 });
-
-// ── Index ──────────────────────────────────────────────────────────────────────
-cartSchema.index({ user: 1 });
 
 const Cart = mongoose.model('Cart', cartSchema);
 module.exports = Cart;

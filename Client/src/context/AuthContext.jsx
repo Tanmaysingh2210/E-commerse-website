@@ -45,6 +45,7 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(async (name, email, password) => {
     const { data } = await authAPI.register({ name, email, password });
+    console.error(data);
     localStorage.setItem('accessToken', data.accessToken);
     setUser(data.user);
     toast.success('Account created successfully!');

@@ -10,7 +10,7 @@ const productSchema = new mongoose.Schema(
     },
     slug: {
       type: String,
-      unique: true,
+      unique: true,     // unique:true creates the index — remove schema.index({ slug:1 })
       lowercase: true,
     },
     description: {
@@ -31,23 +31,9 @@ const productSchema = new mongoose.Schema(
     category: {
       type: String,
       required: [true, 'Category is required'],
-      enum: [
-        'men',
-        'women',
-        'kids',
-        'accessories',
-        'footwear',
-        'outerwear',
-        'activewear',
-        'formals',
-        'ethnic',
-        'others',
-      ],
+      enum: ['men','women','kids','accessories','footwear','outerwear','activewear','formals','ethnic','others'],
     },
-    brand: {
-      type: String,
-      trim: true,
-    },
+    brand: { type: String, trim: true },
     images: [
       {
         url: { type: String, required: true },
@@ -57,38 +43,22 @@ const productSchema = new mongoose.Schema(
     ],
     sizes: [
       {
-        size: { type: String, required: true },  // XS, S, M, L, XL, XXL, or numeric
+        size: { type: String, required: true },
         stock: { type: Number, required: true, min: 0, default: 0 },
       },
     ],
-    colors: [
-      {
-        name: String,
-        hex: String,
-      },
-    ],
+    colors: [{ name: String, hex: String }],
     tags: [{ type: String, lowercase: true, trim: true }],
-    isFeatured: {
-      type: Boolean,
-      default: false,
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    // ── Review aggregation (denormalized for performance) ────────────────────
+    isFeatured: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
     averageRating: {
       type: Number,
       default: 0,
       min: 0,
       max: 5,
-      set: (val) => Math.round(val * 10) / 10,  // Round to 1 decimal
+      set: (val) => Math.round(val * 10) / 10,
     },
-    reviewCount: {
-      type: Number,
-      default: 0,
-    },
-    // ── SEO ────────────────────────────────────────────────────────────────────
+    reviewCount: { type: Number, default: 0 },
     metaTitle: { type: String },
     metaDescription: { type: String },
   },
@@ -99,28 +69,25 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-// ── Indexes ────────────────────────────────────────────────────────────────────
-productSchema.index({ name: 'text', description: 'text', tags: 'text' }); // Full-text search
+// ── Indexes — only fields NOT already indexed via unique:true ──────────────────
+productSchema.index({ name: 'text', description: 'text', tags: 'text' });
 productSchema.index({ category: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ averageRating: -1 });
 productSchema.index({ isFeatured: 1, isActive: 1 });
-productSchema.index({ slug: 1 });
 productSchema.index({ createdAt: -1 });
+// slug index is handled by unique:true above — NOT repeated here
 
-// ── Virtual: Effective price ───────────────────────────────────────────────────
+// ── Virtuals ───────────────────────────────────────────────────────────────────
 productSchema.virtual('effectivePrice').get(function () {
   return this.discountedPrice !== null && this.discountedPrice < this.price
-    ? this.discountedPrice
-    : this.price;
+    ? this.discountedPrice : this.price;
 });
 
-// ── Virtual: Total stock ───────────────────────────────────────────────────────
 productSchema.virtual('totalStock').get(function () {
   return this.sizes.reduce((total, s) => total + s.stock, 0);
 });
 
-// ── Virtual: Discount percentage ──────────────────────────────────────────────
 productSchema.virtual('discountPercent').get(function () {
   if (this.discountedPrice && this.discountedPrice < this.price) {
     return Math.round(((this.price - this.discountedPrice) / this.price) * 100);

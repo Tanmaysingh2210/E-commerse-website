@@ -16,13 +16,17 @@ const register = async (req, res, next) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return next(new ApiError('Email already registered. Please login.', 409));
+      console.log("user exist");
     }
 
+    console.log("user not exist");
+
     const user = await User.create({ name, email, password });
+    console.log("user created", user);
 
     sendTokenResponse(user, 201, res, 'Account created successfully.');
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 

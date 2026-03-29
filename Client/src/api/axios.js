@@ -1,12 +1,13 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// ── IMPORTANT: Use /api (no host) so Vite proxy forwards to backend ────────────
+// Never use http://localhost:5000 directly — that causes CORS errors
+const BASE_URL = '/api';
 
-// ── Main API instance ──────────────────────────────────────────────────────────
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true,           // Send cookies with every request
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
   timeout: 15000,
 });
@@ -33,7 +34,6 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
-    // Don't retry refresh endpoint itself or already-retried requests
     if (
       error.response?.status === 401 &&
       !original._retry &&
@@ -41,7 +41,6 @@ api.interceptors.response.use(
       !original.url.includes('/auth/login')
     ) {
       if (isRefreshing) {
-        // Queue the request until refresh completes
         return new Promise((resolve, reject) => {
           pendingRequests.push({ resolve, reject });
         })
@@ -66,7 +65,6 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processPending(refreshError, null);
         localStorage.removeItem('accessToken');
-        // Redirect to login without full page reload
         window.dispatchEvent(new Event('auth:logout'));
         return Promise.reject(refreshError);
       } finally {
@@ -74,7 +72,6 @@ api.interceptors.response.use(
       }
     }
 
-    // Don't toast on auth pages or 401 from login
     const silent = ['/auth/login', '/auth/register', '/auth/refresh'];
     const isSilent = silent.some((u) => original.url?.includes(u));
 

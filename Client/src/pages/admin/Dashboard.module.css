@@ -1,0 +1,33 @@
+.pageHeader { margin-bottom: 1.75rem; }
+.title { font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; }
+.sub { color: var(--muted); font-size: .88rem; margin-top: .2rem; }
+
+.statsGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.75rem; }
+.statCard { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; display: flex; align-items: center; gap: 1rem; }
+.statIcon { width: 42px; height: 42px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.statLabel { font-size: .78rem; color: var(--muted); font-weight: 500; }
+.statValue { font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; margin-top: .1rem; }
+
+.twoCol { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.chartCard { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; }
+.cardTitle { display: flex; align-items: center; gap: .45rem; font-size: .9rem; font-weight: 700; margin-bottom: 1.25rem; }
+.empty { color: var(--muted); font-size: .88rem; text-align: center; padding: 2rem 0; }
+.viewAll { font-size: .82rem; color: var(--muted); transition: color .15s; }
+.viewAll:hover { color: var(--text); }
+
+.barChart { display: flex; align-items: flex-end; gap: .5rem; height: 160px; padding: 0 .25rem; }
+.barWrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .35rem; height: 100%; justify-content: flex-end; }
+.barLabel { font-size: .6rem; color: var(--muted); text-align: center; }
+.bar { width: 100%; background: var(--accent); border-radius: 4px 4px 0 0; transition: height .3s ease; min-height: 4px; }
+.barMonth { font-size: .68rem; color: var(--muted); }
+
+.orderList { display: flex; flex-direction: column; gap: 0; }
+.orderRow { display: flex; justify-content: space-between; align-items: center; padding: .75rem .5rem; border-bottom: 1px solid var(--border); border-radius: var(--radius); transition: background .15s; }
+.orderRow:last-child { border-bottom: none; }
+.orderRow:hover { background: var(--surface); }
+.orderNum { font-weight: 600; font-size: .88rem; }
+.orderUser { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+.orderRight { display: flex; flex-direction: column; align-items: flex-end; gap: .35rem; }
+.orderAmount { font-weight: 700; font-size: .88rem; }
+
+@media (max-width: 768px) { .twoCol { grid-template-columns: 1fr; } }

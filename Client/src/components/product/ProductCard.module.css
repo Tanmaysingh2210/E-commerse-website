@@ -1,0 +1,40 @@
+.card { display: block; color: inherit; }
+.card:hover .img { transform: scale(1.04); }
+.card:hover .quickAdd { opacity: 1; transform: translateY(0); }
+
+.imgWrap {
+  position: relative; overflow: hidden;
+  border-radius: var(--radius-lg); background: var(--surface);
+  aspect-ratio: 3/4;
+}
+.img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+
+.discountBadge {
+  position: absolute; top: .75rem; left: .75rem;
+  background: var(--danger); color: #fff;
+  font-size: .72rem; font-weight: 700; letter-spacing: .03em;
+  padding: .2rem .55rem; border-radius: 50px;
+}
+.outOfStock {
+  position: absolute; inset: 0; background: rgba(255,255,255,.7);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; font-weight: 600; color: var(--muted);
+}
+.quickAdd {
+  position: absolute; bottom: .75rem; left: .75rem; right: .75rem;
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  background: var(--accent); color: #fff;
+  border-radius: var(--radius); padding: .65rem;
+  font-size: .82rem; font-weight: 600;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity .2s, transform .2s;
+  border: none; cursor: pointer;
+}
+.quickAdd:disabled { background: var(--muted); cursor: not-allowed; }
+
+.info { padding: .85rem .1rem 0; }
+.brand { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .2rem; }
+.name { font-size: .95rem; font-weight: 500; margin-bottom: .35rem; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.priceRow { display: flex; align-items: center; gap: .5rem; margin-top: .4rem; }
+.price { font-size: 1rem; font-weight: 700; }
+.originalPrice { font-size: .85rem; color: var(--muted); text-decoration: line-through; }
