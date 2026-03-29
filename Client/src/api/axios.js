@@ -1,53 +1,54 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-// In production: direct backend URL (no proxy available on Vercel)
-// In development: /api goes through Vite proxy to localhost:5000
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
-// const BASE_URL =  '/api';
+// In production (Vercel): VITE_API_URL = https://drip-backend-3alw.onrender.com/api
+// In development (local): falls back to /api which Vite proxies to localhost:5000
+var BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
-const api = axios.create({
+var api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: false,
+  withCredentials: false,   // using Bearer tokens, not cookies — keep false always
   headers: { 'Content-Type': 'application/json' },
-  timeout: 50000,
+  timeout: 30000,
 });
 
-// ── Attach access token to every request ───────────────────────────────────────
+// Attach Bearer token to every request
 api.interceptors.request.use(function(config) {
   var token = localStorage.getItem('accessToken');
-  if (token) config.headers.Authorization = 'Bearer ' + token;
+  if (token) {
+    config.headers.Authorization = 'Bearer ' + token;
+  }
   return config;
 });
 
-// ── Token refresh + error handling ────────────────────────────────────────────
+// Auto-refresh on 401
 var isRefreshing = false;
-var pendingRequests = [];
+var queue = [];
 
-var processPending = function(error, token) {
-  pendingRequests.forEach(function(cb) {
-    if (error) cb.reject(error);
-    else cb.resolve(token);
-  });
-  pendingRequests = [];
-};
+function processQueue(error, token) {
+  queue.forEach(function(p) { error ? p.reject(error) : p.resolve(token); });
+  queue = [];
+}
 
 api.interceptors.response.use(
-  function(response) { return response; },
+  function(res) { return res; },
   async function(error) {
     var original = error.config;
+    var status   = error.response ? error.response.status : null;
+    var url      = original ? original.url : '';
 
+    // Auto-refresh on 401 (except on auth endpoints themselves)
     if (
-      error.response &&
-      error.response.status === 401 &&
+      status === 401 &&
       !original._retry &&
-      original.url &&
-      !original.url.includes('/auth/refresh') &&
-      !original.url.includes('/auth/login')
+      url &&
+      !url.includes('/auth/refresh') &&
+      !url.includes('/auth/login') &&
+      !url.includes('/auth/register')
     ) {
       if (isRefreshing) {
         return new Promise(function(resolve, reject) {
-          pendingRequests.push({ resolve: resolve, reject: reject });
+          queue.push({ resolve: resolve, reject: reject });
         }).then(function(token) {
           original.headers.Authorization = 'Bearer ' + token;
           return api(original);
@@ -55,34 +56,42 @@ api.interceptors.response.use(
       }
 
       original._retry = true;
-      isRefreshing = true;
+      isRefreshing    = true;
+
+      var storedRefresh = localStorage.getItem('refreshToken');
 
       try {
-        var refreshToken = localStorage.getItem('refreshToken');
-        var response = await api.post('/auth/refresh', { refreshToken: refreshToken });
-        var newToken = response.data.accessToken;
+        var r = await axios.post(BASE_URL + '/auth/refresh', { refreshToken: storedRefresh }, {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: false,
+        });
+        var newToken = r.data.accessToken;
         localStorage.setItem('accessToken', newToken);
+        if (r.data.refreshToken) localStorage.setItem('refreshToken', r.data.refreshToken);
         api.defaults.headers.common.Authorization = 'Bearer ' + newToken;
-        processPending(null, newToken);
+        processQueue(null, newToken);
         original.headers.Authorization = 'Bearer ' + newToken;
         return api(original);
-      } catch (refreshError) {
-        processPending(refreshError, null);
+      } catch (refreshErr) {
+        processQueue(refreshErr, null);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         window.dispatchEvent(new Event('auth:logout'));
-        return Promise.reject(refreshError);
+        return Promise.reject(refreshErr);
       } finally {
         isRefreshing = false;
       }
     }
 
-    var silent = ['/auth/login', '/auth/register', '/auth/refresh'];
-    var isSilent = silent.some(function(u) { return original.url && original.url.includes(u); });
+    // Don't show toast for auth endpoint errors (handled by each page)
+    var silentUrls = ['/auth/login', '/auth/register', '/auth/refresh'];
+    var isSilent   = silentUrls.some(function(u) { return url && url.includes(u); });
 
-    if (!isSilent && error.response && error.response.status !== 401) {
-      var message = (error.response.data && error.response.data.message) || 'Something went wrong';
-      toast.error(message);
+    if (!isSilent && status && status !== 401) {
+      var msg = error.response && error.response.data && error.response.data.message
+        ? error.response.data.message
+        : 'Something went wrong';
+      toast.error(msg);
     }
 
     return Promise.reject(error);
