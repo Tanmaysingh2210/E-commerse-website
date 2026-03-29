@@ -26,9 +26,6 @@ app.use(helmet());
 
 // ── CORS — must be before any routes ──────────────────────────────────────────
 const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://127.0.0.1:3000',
   'https://drip-beryl.vercel.app',   // your Vercel frontend
 ];
 
@@ -48,18 +45,15 @@ const corsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200,  // some browsers send 204 which blocks preflight
+  optionsSuccessStatus: 200,  
 };
 
-// Handle preflight OPTIONS for every route FIRST
 app.use(cors(corsOptions));
 
-// ── Body Parsing ───────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
-// ── Sanitize body ──────────────────────────────────────────────────────────────
 var sanitizeBody = function(obj) {
   if (!obj || typeof obj !== 'object') return;
   var keys = Object.keys(obj);
@@ -80,15 +74,13 @@ app.use(function(req, res, next) {
   next();
 });
 
-// ── Logging ────────────────────────────────────────────────────────────────────
 app.use(morgan('dev'));
 
-// ── Health Check ───────────────────────────────────────────────────────────────
 app.get('/api/health', function(req, res) {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// ── Routes ─────────────────────────────────────────────────────────────────────
+app.options('*', cors());
 app.use('/api/auth',     authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart',     cartRoutes);
@@ -98,11 +90,11 @@ app.use('/api/coupons',  couponRoutes);
 app.use('/api/payment',  paymentRoutes);
 app.use('/api/admin',    adminRoutes);
 
-// ── Error Handling ─────────────────────────────────────────────────────────────
+
 app.use(notFound);
 app.use(errorHandler);
 
-// ── Start Server ───────────────────────────────────────────────────────────────
+
 var PORT = process.env.PORT || 5000;
 var server = app.listen(PORT, function() {
   logger.info('Server running on port ' + PORT);

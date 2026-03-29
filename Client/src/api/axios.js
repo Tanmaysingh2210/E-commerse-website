@@ -4,14 +4,13 @@ import toast from 'react-hot-toast';
 // In production: direct backend URL (no proxy available on Vercel)
 // In development: /api goes through Vite proxy to localhost:5000
 const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// const BASE_URL =  '/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
-  // withCredentials only needed if using cookies — we use Bearer tokens in localStorage
-  // Setting this to true in production causes CORS preflight to require exact origin match
   withCredentials: false,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 15000,
+  timeout: 50000,
 });
 
 // ── Attach access token to every request ───────────────────────────────────────
