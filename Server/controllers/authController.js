@@ -2,50 +2,46 @@ const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const { ApiError } = require('../middleware/errorMiddleware');
-const { sendTokenResponse, generateAccessToken, generateRefreshToken, clearTokenCookies } = require('../utils/tokenUtils');
+const {
+  sendTokenResponse,
+  generateAccessToken,
+  generateRefreshToken,
+  clearTokenCookies,
+} = require('../utils/tokenUtils');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// ── @desc   Register new user
-// ── @route  POST /api/auth/register
-// ── @access Public
+// ── Register ───────────────────────────────────────────────────────────────────
 const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return next(new ApiError('Email already registered. Please login.', 409));
-      console.log("user exist");
     }
 
-    console.log("user not exist");
-
-    const user = await User.create({ name, email, password });
-    console.log("user created", user);
-
+    const user = await User.create({ name, email: email.toLowerCase(), password });
     sendTokenResponse(user, 201, res, 'Account created successfully.');
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };
 
-// ── @desc   Login user
-// ── @route  POST /api/auth/login
-// ── @access Public
+// ── Login ──────────────────────────────────────────────────────────────────────
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Must include password (select: false in schema)
-    const user = await User.findOne({ email }).select('+password +loginAttempts +lockUntil');
+    const user = await User.findOne({ email: email.toLowerCase() })
+      .select('+password +loginAttempts +lockUntil');
+
     if (!user || !user.password) {
       return next(new ApiError('Invalid email or password.', 401));
     }
 
-    // Check account lock
     if (user.isLocked) {
-      return next(new ApiError('Account temporarily locked due to failed login attempts. Try again later.', 423));
+      return next(new ApiError('Account temporarily locked due to too many failed attempts. Try again later.', 423));
     }
 
     const isMatch = await user.comparePassword(password);
@@ -58,7 +54,7 @@ const login = async (req, res, next) => {
       return next(new ApiError('Account deactivated. Contact support.', 403));
     }
 
-    // Reset login attempts on success
+    // Reset failed attempts on success
     await User.findByIdAndUpdate(user._id, {
       $set: { loginAttempts: 0 },
       $unset: { lockUntil: 1 },
@@ -74,9 +70,7 @@ const login = async (req, res, next) => {
   }
 };
 
-// ── @desc   Google OAuth login/register
-// ── @route  POST /api/auth/google
-// ── @access Public
+// ── Google OAuth ───────────────────────────────────────────────────────────────
 const googleAuth = async (req, res, next) => {
   try {
     const { idToken } = req.body;
@@ -92,16 +86,12 @@ const googleAuth = async (req, res, next) => {
     let user = await User.findOne({ $or: [{ googleId }, { email }] });
 
     if (!user) {
-      // New user — create account
       user = await User.create({
-        name,
-        email,
-        googleId,
+        name, email, googleId,
         avatar: picture,
         isEmailVerified: true,
       });
     } else if (!user.googleId) {
-      // Existing email user — link Google account
       user.googleId = googleId;
       user.avatar = user.avatar || picture;
       await user.save();
@@ -120,12 +110,14 @@ const googleAuth = async (req, res, next) => {
   }
 };
 
-// ── @desc   Refresh access token using refresh token
-// ── @route  POST /api/auth/refresh
-// ── @access Public (requires valid refresh token)
+// ── Refresh token ──────────────────────────────────────────────────────────────
 const refreshToken = async (req, res, next) => {
   try {
-    const token = req.signedCookies?.refreshToken || req.body.refreshToken;
+    // Check plain cookie OR body (for mobile clients)
+    const token =
+      req.cookies?.refreshToken ||
+      req.body?.refreshToken;
+
     if (!token) return next(new ApiError('Refresh token missing.', 401));
 
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
@@ -139,26 +131,25 @@ const refreshToken = async (req, res, next) => {
       return next(new ApiError('Account deactivated.', 403));
     }
 
-    const newAccessToken = generateAccessToken(user._id, user.role);
+    const newAccessToken  = generateAccessToken(user._id, user.role);
     const newRefreshToken = generateRefreshToken(user._id);
 
-    // Rotate refresh token
     await User.findByIdAndUpdate(user._id, { refreshToken: newRefreshToken });
 
     const isProduction = process.env.NODE_ENV === 'production';
+
     res
       .cookie('accessToken', newAccessToken, {
-        httpOnly: true, signed: true,
+        httpOnly: true,
         sameSite: isProduction ? 'strict' : 'lax',
-        secure: isProduction,
-        maxAge: 15 * 60 * 1000,
+        secure:   isProduction,
+        maxAge:   15 * 60 * 1000,
       })
       .cookie('refreshToken', newRefreshToken, {
-        httpOnly: true, signed: true,
+        httpOnly: true,
         sameSite: isProduction ? 'strict' : 'lax',
-        secure: isProduction,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-        path: '/api/auth/refresh',
+        secure:   isProduction,
+        maxAge:   7 * 24 * 60 * 60 * 1000,
       })
       .status(200)
       .json({ success: true, accessToken: newAccessToken });
@@ -167,12 +158,9 @@ const refreshToken = async (req, res, next) => {
   }
 };
 
-// ── @desc   Logout user
-// ── @route  POST /api/auth/logout
-// ── @access Private
+// ── Logout ─────────────────────────────────────────────────────────────────────
 const logout = async (req, res, next) => {
   try {
-    // Invalidate refresh token in DB
     await User.findByIdAndUpdate(req.user._id, { refreshToken: null });
     clearTokenCookies(res);
     res.status(200).json({ success: true, message: 'Logged out successfully.' });
@@ -181,9 +169,7 @@ const logout = async (req, res, next) => {
   }
 };
 
-// ── @desc   Get current logged-in user profile
-// ── @route  GET /api/auth/me
-// ── @access Private
+// ── Get current user ───────────────────────────────────────────────────────────
 const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
@@ -193,14 +179,12 @@ const getMe = async (req, res, next) => {
   }
 };
 
-// ── @desc   Update user profile
-// ── @route  PUT /api/auth/me
-// ── @access Private
+// ── Update profile ─────────────────────────────────────────────────────────────
 const updateProfile = async (req, res, next) => {
   try {
     const { name, addresses } = req.body;
     const updates = {};
-    if (name) updates.name = name;
+    if (name)      updates.name      = name;
     if (addresses) updates.addresses = addresses;
 
     const user = await User.findByIdAndUpdate(req.user._id, updates, {
@@ -213,9 +197,7 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-// ── @desc   Change password
-// ── @route  PUT /api/auth/change-password
-// ── @access Private
+// ── Change password ────────────────────────────────────────────────────────────
 const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -237,4 +219,13 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, googleAuth, refreshToken, logout, getMe, updateProfile, changePassword };
+module.exports = {
+  register,
+  login,
+  googleAuth,
+  refreshToken,
+  logout,
+  getMe,
+  updateProfile,
+  changePassword,
+};
