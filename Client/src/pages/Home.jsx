@@ -25,8 +25,8 @@ export default function Home() {
 
   useEffect(() => {
     productAPI.getFeatured()
-      .then(({ data }) => setFeatured(data.products))
-      .catch(() => { })
+      .then(({ data }) => setFeatured(Array.isArray(data?.products) ? data.products : []))
+      .catch(() => setFeatured([]))
       .finally(() => setLoading(false));
   }, []);
 
