@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 
 // ── IMPORTANT: Use /api (no host) so Vite proxy forwards to backend ────────────
 // Never use http://localhost:5000 directly — that causes CORS errors
-const BASE_URL = '/api';
+const BASE_URL = 'https://drip-backend-3alw.onrender.com/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
