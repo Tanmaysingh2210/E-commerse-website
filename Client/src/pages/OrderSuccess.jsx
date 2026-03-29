@@ -7,14 +7,14 @@ import { formatPrice, formatDate } from '../utils/helpers';
 import styles from './OrderSuccess.module.css';
 
 export default function OrderSuccess() {
-  const { id }            = useParams();
+  const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     orderAPI.getOne(id)
       .then(({ data }) => setOrder(data.order))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -54,10 +54,10 @@ export default function OrderSuccess() {
               {/* Status tracker */}
               <div className={styles.tracker}>
                 {['confirmed', 'processing', 'shipped', 'delivered'].map((s, i) => {
-                  const statusOrder = ['pending','confirmed','processing','shipped','delivered'];
-                  const currentIdx  = statusOrder.indexOf(order.status);
-                  const stepIdx     = statusOrder.indexOf(s);
-                  const done        = currentIdx >= stepIdx;
+                  const statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
+                  const currentIdx = statusOrder.indexOf(order.status);
+                  const stepIdx = statusOrder.indexOf(s);
+                  const done = currentIdx >= stepIdx;
                   return (
                     <React.Fragment key={s}>
                       <div className={`${styles.trackerStep} ${done ? styles.trackerDone : ''}`}>
@@ -75,7 +75,7 @@ export default function OrderSuccess() {
                 {order.items.map((item) => (
                   <div key={item._id} className={styles.item}>
                     <img src={item.image || 'https://placehold.co/60x75?text=?'} alt={item.name}
-                      onError={(e) => { e.target.src='https://placehold.co/60x75?text=?'; }} />
+                      onError={(e) => { e.target.src = 'https://placehold.co/60x75?text=?'; }} />
                     <div className={styles.itemInfo}>
                       <p>{item.name}</p>
                       {item.size && <p className={styles.itemMeta}>Size: {item.size}</p>}

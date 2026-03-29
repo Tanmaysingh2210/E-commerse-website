@@ -6,13 +6,13 @@ import { useAuth } from '../context/AuthContext';
 import styles from './Auth.module.css';
 
 export default function Login() {
-  const { login, user }    = useAuth();
-  const navigate           = useNavigate();
-  const location           = useLocation();
-  const from               = location.state?.from?.pathname || '/';
-  const [showPw, setShowPw]     = useState(false);
-  const [loading, setLoading]   = useState(false);
-  const [error,   setError]     = useState('');
+  const { login, user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const { register, handleSubmit, formState: { errors } } = useForm();
 

@@ -7,10 +7,10 @@ import { authAPI } from '../api/auth';
 import styles from './Profile.module.css';
 
 export default function Profile() {
-  const { user, updateUser }   = useAuth();
-  const [tab, setTab]          = useState('profile');
-  const [saving,   setSaving]  = useState(false);
-  const [pwSaving, setPwSaving]= useState(false);
+  const { user, updateUser } = useAuth();
+  const [tab, setTab] = useState('profile');
+  const [saving, setSaving] = useState(false);
+  const [pwSaving, setPwSaving] = useState(false);
 
   const { register: regProfile, handleSubmit: handleProfile, formState: { errors: pe } } = useForm({
     defaultValues: { name: user?.name || '', email: user?.email || '' },

@@ -8,15 +8,15 @@ import { formatPrice, formatDate, statusVariant, paymentVariant } from '../utils
 import styles from './OrderDetail.module.css';
 
 export default function OrderDetail() {
-  const { id }                = useParams();
-  const [order,   setOrder]   = useState(null);
+  const { id } = useParams();
+  const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     orderAPI.getOne(id)
       .then(({ data }) => setOrder(data.order))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -33,7 +33,7 @@ export default function OrderDetail() {
   };
 
   if (loading) return <Spinner center />;
-  if (!order)  return <div className="empty-state"><p>Order not found.</p><Link to="/orders" className="btn btn-outline">Back to Orders</Link></div>;
+  if (!order) return <div className="empty-state"><p>Order not found.</p><Link to="/orders" className="btn btn-outline">Back to Orders</Link></div>;
 
   const canCancel = ['pending', 'confirmed'].includes(order.status);
 
@@ -60,7 +60,7 @@ export default function OrderDetail() {
             {order.items.map((item) => (
               <div key={item._id} className={styles.item}>
                 <img src={item.image || 'https://placehold.co/70x88?text=?'} alt={item.name}
-                  onError={(e) => { e.target.src='https://placehold.co/70x88?text=?'; }} />
+                  onError={(e) => { e.target.src = 'https://placehold.co/70x88?text=?'; }} />
                 <div className={styles.itemInfo}>
                   <p className={styles.itemName}>{item.name}</p>
                   <p className={styles.itemMeta}>{[item.size && `Size: ${item.size}`, `Qty: ${item.quantity}`].filter(Boolean).join(' · ')}</p>

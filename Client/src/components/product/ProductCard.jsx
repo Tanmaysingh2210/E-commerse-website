@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Heart } from 'lucide-react';
-import { StarDisplay } from '../common/Starrating';
+import { StarDisplay } from '../common/StarRating';
 import { formatPrice, primaryImage } from '../../utils/helpers';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';

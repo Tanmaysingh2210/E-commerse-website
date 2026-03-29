@@ -8,16 +8,16 @@ import { formatPrice, formatDate, statusVariant, paymentVariant } from '../utils
 import styles from './Orders.module.css';
 
 export default function Orders() {
-  const [orders,     setOrders]     = useState([]);
+  const [orders, setOrders] = useState([]);
   const [pagination, setPagination] = useState({ totalPages: 1 });
-  const [page,       setPage]       = useState(1);
-  const [loading,    setLoading]    = useState(true);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
     orderAPI.getMyOrders({ page, limit: 8 })
       .then(({ data }) => { setOrders(data.data); setPagination(data.pagination); })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, [page]);
 

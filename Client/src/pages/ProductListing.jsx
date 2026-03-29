@@ -8,27 +8,27 @@ import { productAPI } from '../api/products';
 import { debounce } from '../utils/helpers';
 import styles from './ProductListing.module.css';
 
-const CATEGORIES = ['men','women','kids','accessories','footwear','outerwear','activewear','formals','ethnic','others'];
+const CATEGORIES = ['men', 'women', 'kids', 'accessories', 'footwear', 'outerwear', 'activewear', 'formals', 'ethnic', 'others'];
 const SORTS = [
   { value: '-createdAt', label: 'Newest' },
-  { value: 'price',      label: 'Price: Low to High' },
-  { value: '-price',     label: 'Price: High to Low' },
+  { value: 'price', label: 'Price: Low to High' },
+  { value: '-price', label: 'Price: High to Low' },
   { value: '-averageRating', label: 'Top Rated' },
 ];
 
 export default function ProductListing() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [products,    setProducts]    = useState([]);
-  const [pagination,  setPagination]  = useState({ total: 0, totalPages: 1 });
-  const [loading,     setLoading]     = useState(true);
+  const [products, setProducts] = useState([]);
+  const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
+  const [loading, setLoading] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   // ── Filter state derived from URL ─────────────────────────────────────────
-  const page     = parseInt(searchParams.get('page') || '1');
+  const page = parseInt(searchParams.get('page') || '1');
   const category = searchParams.get('category') || '';
-  const sort     = searchParams.get('sort')     || '-createdAt';
-  const search   = searchParams.get('search')   || '';
+  const sort = searchParams.get('sort') || '-createdAt';
+  const search = searchParams.get('search') || '';
   const minPrice = searchParams.get('minPrice') || '';
   const maxPrice = searchParams.get('maxPrice') || '';
 
@@ -45,13 +45,13 @@ export default function ProductListing() {
       const { data } = await productAPI.getAll({
         page, sort, limit: 12,
         ...(category && { category }),
-        ...(search   && { search }),
+        ...(search && { search }),
         ...(minPrice && { minPrice }),
         ...(maxPrice && { maxPrice }),
       });
       setProducts(data.data);
       setPagination(data.pagination);
-    } catch {}
+    } catch { }
     finally { setLoading(false); }
   }, [page, category, sort, search, minPrice, maxPrice]);
 

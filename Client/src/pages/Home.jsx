@@ -7,26 +7,26 @@ import { productAPI } from '../api/products';
 import styles from './Home.module.css';
 
 const CATEGORIES = [
-  { key: 'men',       label: 'Men',        img: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=600&q=80' },
-  { key: 'women',     label: 'Women',      img: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=600&q=80' },
-  { key: 'kids',      label: 'Kids',       img: 'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=600&q=80' },
-  { key: 'footwear',  label: 'Footwear',   img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80' },
+  { key: 'men', label: 'Men', img: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=600&q=80' },
+  { key: 'women', label: 'Women', img: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=600&q=80' },
+  { key: 'kids', label: 'Kids', img: 'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=600&q=80' },
+  { key: 'footwear', label: 'Footwear', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80' },
 ];
 
 const PERKS = [
-  { icon: Truck,       title: 'Free Shipping',    desc: 'On orders above ₹199' },
-  { icon: RefreshCw,   title: 'Easy Returns',     desc: '7-day hassle-free returns' },
-  { icon: ShieldCheck, title: 'Secure Payments',  desc: 'Razorpay encrypted checkout' },
+  { icon: Truck, title: 'Free Shipping', desc: 'On orders above ₹199' },
+  { icon: RefreshCw, title: 'Easy Returns', desc: '7-day hassle-free returns' },
+  { icon: ShieldCheck, title: 'Secure Payments', desc: 'Razorpay encrypted checkout' },
 ];
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     productAPI.getFeatured()
       .then(({ data }) => setFeatured(data.products))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 

@@ -10,15 +10,15 @@ import { formatPrice, loadRazorpay, primaryImage } from '../utils/helpers';
 import styles from './Checkout.module.css';
 
 const SHIPPING_THRESHOLD = 999;
-const SHIPPING_CHARGE    = 99;
+const SHIPPING_CHARGE = 99;
 
 export default function Checkout() {
-  const navigate           = useNavigate();
-  const { user }           = useAuth();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { cart, subtotal, clearCart } = useCart();
-  const [payMethod, setPayMethod]   = useState('razorpay');
-  const [placing,   setPlacing]     = useState(false);
-  const [step,      setStep]        = useState(1); // 1=address, 2=payment
+  const [payMethod, setPayMethod] = useState('razorpay');
+  const [placing, setPlacing] = useState(false);
+  const [step, setStep] = useState(1); // 1=address, 2=payment
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
@@ -32,9 +32,9 @@ export default function Checkout() {
     },
   });
 
-  const discount  = cart?.appliedCoupon?.discountAmount || 0;
-  const shipping  = subtotal >= SHIPPING_THRESHOLD || subtotal === 0 ? 0 : SHIPPING_CHARGE;
-  const total     = Math.max(0, subtotal - discount + shipping);
+  const discount = cart?.appliedCoupon?.discountAmount || 0;
+  const shipping = subtotal >= SHIPPING_THRESHOLD || subtotal === 0 ? 0 : SHIPPING_CHARGE;
+  const total = Math.max(0, subtotal - discount + shipping);
 
   useEffect(() => {
     if (!cart?.items?.length) navigate('/cart');
@@ -57,7 +57,6 @@ export default function Checkout() {
     } finally { setPlacing(false); }
   };
 
-  // ── Razorpay flow ──────────────────────────────────────────────────────────
   const handleRazorpay = async (addressData) => {
     setPlacing(true);
     try {
@@ -85,7 +84,7 @@ export default function Checkout() {
         description: `Order #${rzpData.orderNumber}`,
         order_id: rzpData.razorpayOrderId,
         prefill: {
-          name:  rzpData.prefill.name,
+          name: rzpData.prefill.name,
           email: rzpData.prefill.email,
           contact: addressData.phone,
         },
@@ -96,7 +95,7 @@ export default function Checkout() {
           try {
             // 5. Verify signature on backend
             await paymentAPI.verify({
-              razorpayOrderId:  response.razorpay_order_id,
+              razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,
               orderId: order._id,
@@ -117,7 +116,7 @@ export default function Checkout() {
               razorpayOrderId: rzpData.razorpayOrderId,
               error: { description: 'Payment dismissed by user.' },
             });
-          } catch {}
+          } catch { }
           toast.error('Payment cancelled.');
           setPlacing(false);
         },
@@ -157,20 +156,17 @@ export default function Checkout() {
         <h1 className="page-title" style={{ marginBottom: '2rem' }}>Checkout</h1>
 
         <div className={styles.layout}>
-          {/* ── Left: Form ── */}
           <div>
-            {/* Steps */}
             <div className={styles.steps}>
-              {[{n:1,label:'Shipping Address'},{n:2,label:'Payment'}].map(({n,label}) => (
+              {[{ n: 1, label: 'Shipping Address' }, { n: 2, label: 'Payment' }].map(({ n, label }) => (
                 <div key={n} className={`${styles.step} ${step >= n ? styles.stepActive : ''}`}>
-                  <div className={styles.stepNum}>{step > n ? <CheckCircle size={14}/> : n}</div>
+                  <div className={styles.stepNum}>{step > n ? <CheckCircle size={14} /> : n}</div>
                   <span>{label}</span>
                 </div>
               ))}
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)}>
-              {/* ── Step 1: Address ── */}
               <div className={`${styles.formCard} ${step !== 1 ? styles.collapsed : ''}`}>
                 <h2 className={styles.formTitle}>Shipping Address</h2>
                 <div className={styles.formGrid}>
@@ -285,7 +281,7 @@ export default function Checkout() {
             <div className={styles.summaryItems}>
               {cart?.items?.map((item) => {
                 const name = typeof item.product === 'object' ? item.product?.name : 'Product';
-                const img  = typeof item.product === 'object' ? primaryImage(item.product?.images) : '';
+                const img = typeof item.product === 'object' ? primaryImage(item.product?.images) : '';
                 return (
                   <div key={item._id} className={styles.summaryItem}>
                     <div className={styles.summaryImgWrap}>

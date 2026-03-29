@@ -12,21 +12,21 @@ import { formatPrice, formatDate, primaryImage } from '../utils/helpers';
 import styles from './ProductDetail.module.css';
 
 export default function ProductDetail() {
-  const { slug }        = useParams();
-  const { addToCart }   = useCart();
-  const { user }        = useAuth();
+  const { slug } = useParams();
+  const { addToCart } = useCart();
+  const { user } = useAuth();
 
-  const [product,    setProduct]    = useState(null);
-  const [reviews,    setReviews]    = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [activeImg,  setActiveImg]  = useState(0);
-  const [selSize,    setSelSize]    = useState('');
-  const [quantity,   setQuantity]   = useState(1);
-  const [adding,     setAdding]     = useState(false);
+  const [product, setProduct] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeImg, setActiveImg] = useState(0);
+  const [selSize, setSelSize] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [adding, setAdding] = useState(false);
 
   // Review form
-  const [rating,     setRating]     = useState(0);
-  const [comment,    setComment]    = useState('');
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function ProductDetail() {
         return reviewAPI.getForProduct(data.product._id, { limit: 10 });
       })
       .then(({ data }) => setReviews(data.data))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, [slug]);
 
@@ -50,11 +50,11 @@ export default function ProductDetail() {
     </div>
   );
 
-  const price       = product.discountedPrice ?? product.price;
+  const price = product.discountedPrice ?? product.price;
   const hasDiscount = product.discountedPrice && product.discountedPrice < product.price;
-  const selSizeObj  = product.sizes?.find((s) => s.size === selSize);
-  const maxQty      = selSizeObj?.stock ?? 0;
-  const outOfStock  = product.sizes?.every((s) => s.stock === 0);
+  const selSizeObj = product.sizes?.find((s) => s.size === selSize);
+  const maxQty = selSizeObj?.stock ?? 0;
+  const outOfStock = product.sizes?.every((s) => s.stock === 0);
 
   const handleAddToCart = async () => {
     if (!user) { toast.error('Please login to add items to cart.'); return; }
