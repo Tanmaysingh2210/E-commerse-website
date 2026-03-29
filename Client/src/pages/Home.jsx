@@ -14,7 +14,7 @@ const CATEGORIES = [
 ];
 
 const PERKS = [
-  { icon: Truck,       title: 'Free Shipping',    desc: 'On orders above ₹999' },
+  { icon: Truck,       title: 'Free Shipping',    desc: 'On orders above ₹199' },
   { icon: RefreshCw,   title: 'Easy Returns',     desc: '7-day hassle-free returns' },
   { icon: ShieldCheck, title: 'Secure Payments',  desc: 'Razorpay encrypted checkout' },
 ];
