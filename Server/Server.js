@@ -27,9 +27,7 @@ const app = express();
 app.use(helmet());
 
 const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://127.0.0.1:3000',
+  'https://drip-beryl.vercel.app'
   process.env.CLIENT_URL,
 ].filter(Boolean);
 
