@@ -4,10 +4,9 @@
   "description": "Production-ready ecommerce backend API",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node Server.js",
+    "dev": "nodemon Server.js",
     "create-admin": "node scripts/createAdmin.js",
-    "reset-password": "node scripts/resetPassword.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
