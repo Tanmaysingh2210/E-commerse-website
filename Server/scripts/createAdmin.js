@@ -2,9 +2,9 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const ADMIN_NAME     = 'Tanmay';
-const ADMIN_EMAIL    = 'tanmays2210@gmail.com';
-const ADMIN_PASSWORD = 'Tanmay@1234';
+const ADMIN_NAME     = 'Priyansh';
+const ADMIN_EMAIL    = 'priyanshsharma745@gmail.com';
+const ADMIN_PASSWORD = 'Priyansh#9650';
 
 async function createAdmin() {
   try {
