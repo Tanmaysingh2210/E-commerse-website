@@ -1,21 +1,24 @@
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 
 const {
-    createOrder,
-    getMyOrders,
-    getOrder,
-    cancelOrder,
-} = require('../controllers/orderController');
+  getProductReviews,
+  createReview,
+  updateReview,
+  deleteReview,
+  getMyReviews,
+} = require('../controllers/reviewController');
 
-const { protect } = require('../middleware/authMiddleware');
-const { orderValidator, paginationValidator } = require('../middleware/validators');
+const { protect }                          = require('../middleware/authMiddleware');
+const { reviewValidator, paginationValidator } = require('../middleware/validators');
 
-router.use(protect);
+// ── Public ─────────────────────────────────────────────────────────────────────
+router.get('/product/:productId', paginationValidator, getProductReviews);
 
-router.post('/', orderValidator, createOrder);
-router.get('/my-orders', paginationValidator, getMyOrders);
-router.get('/:id', getOrder);
-router.patch('/:id/cancel', cancelOrder);
+// ── Private — specific paths BEFORE param paths to avoid conflicts ─────────────
+router.get('/my-reviews',        protect, getMyReviews);
+router.post('/product/:productId', protect, reviewValidator, createReview);
+router.put('/review/:reviewId',    protect, reviewValidator, updateReview);
+router.delete('/review/:reviewId', protect, deleteReview);
 
 module.exports = router;

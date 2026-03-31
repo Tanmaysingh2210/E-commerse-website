@@ -13,15 +13,15 @@ export const cartAPI = {
 
 // ── Orders ─────────────────────────────────────────────────────────────────────
 export const orderAPI = {
-  create:          (data)   => api.post('/orders', data),
-  getUpiDiscount:  ()       => api.get('/orders/upi-discount'),
-  getMyOrders:     (params) => api.get('/orders/my-orders', { params }),
-  getOne:          (id)     => api.get('/orders/' + id),
-  cancel:          (id, reason) => api.patch('/orders/' + id + '/cancel', { reason }),
+  create:         (data)        => api.post('/orders', data),
+  getUpiDiscount: ()            => api.get('/orders/upi-discount'),
+  getMyOrders:    (params)      => api.get('/orders/my-orders', { params }),
+  getOne:         (id)          => api.get('/orders/' + id),
+  cancel:         (id, reason)  => api.patch('/orders/' + id + '/cancel', { reason }),
 
   // Admin
-  getAll:          (params) => api.get('/admin/orders', { params }),
-  updateStatus:    (id, data)   => api.patch('/admin/orders/' + id + '/status', data),
+  getAll:       (params)      => api.get('/admin/orders', { params }),
+  updateStatus: (id, data)    => api.patch('/admin/orders/' + id + '/status', data),
 };
 
 // ── Payment ────────────────────────────────────────────────────────────────────
@@ -34,28 +34,41 @@ export const paymentAPI = {
 
 // ── Reviews ────────────────────────────────────────────────────────────────────
 export const reviewAPI = {
-  getForProduct: (productId, params) => api.get('/reviews/product/' + productId, { params }),
-  create:        (productId, data)   => api.post('/reviews/product/' + productId, data),
-  update:        (id, data)          => api.put('/reviews/' + id, data),
-  delete:        (id)                => api.delete('/reviews/' + id),
-  getMyReviews:  ()                  => api.get('/reviews/my-reviews'),
+  // GET /api/reviews/product/:productId
+  getForProduct: (productId, params) =>
+    api.get('/reviews/product/' + productId, { params }),
+
+  // POST /api/reviews/product/:productId
+  create: (productId, data) =>
+    api.post('/reviews/product/' + productId, data),
+
+  // PUT /api/reviews/review/:reviewId  (note: /review/ prefix)
+  update: (reviewId, data) =>
+    api.put('/reviews/review/' + reviewId, data),
+
+  // DELETE /api/reviews/review/:reviewId
+  delete: (reviewId) =>
+    api.delete('/reviews/review/' + reviewId),
+
+  // GET /api/reviews/my-reviews
+  getMyReviews: () => api.get('/reviews/my-reviews'),
 };
 
 // ── Coupons ────────────────────────────────────────────────────────────────────
 export const couponAPI = {
   validate: (code, orderTotal) => api.post('/coupons/validate', { code, orderTotal }),
-  getAll:   (params) => api.get('/admin/coupons', { params }),
-  create:   (data)   => api.post('/admin/coupons', data),
-  update:   (id, d)  => api.put('/admin/coupons/' + id, d),
-  delete:   (id)     => api.delete('/admin/coupons/' + id),
+  getAll:   (params)           => api.get('/admin/coupons', { params }),
+  create:   (data)             => api.post('/admin/coupons', data),
+  update:   (id, d)            => api.put('/admin/coupons/' + id, d),
+  delete:   (id)               => api.delete('/admin/coupons/' + id),
 };
 
 // ── Admin ──────────────────────────────────────────────────────────────────────
 export const adminAPI = {
-  getStats:        ()        => api.get('/admin/stats'),
-  getProducts:     (params)  => api.get('/admin/products', { params }),
-  getProduct:      (id)      => api.get('/admin/products/' + id),
-  getUsers:        (params)  => api.get('/admin/users', { params }),
-  toggleUserStatus:(id)      => api.patch('/admin/users/' + id + '/status'),
-  updateUserRole:  (id, role)=> api.patch('/admin/users/' + id + '/role', { role }),
+  getStats:         ()           => api.get('/admin/stats'),
+  getProducts:      (params)     => api.get('/admin/products', { params }),
+  getProduct:       (id)         => api.get('/admin/products/' + id),
+  getUsers:         (params)     => api.get('/admin/users', { params }),
+  toggleUserStatus: (id)         => api.patch('/admin/users/' + id + '/status'),
+  updateUserRole:   (id, role)   => api.patch('/admin/users/' + id + '/role', { role }),
 };
