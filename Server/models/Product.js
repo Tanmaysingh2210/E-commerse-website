@@ -28,10 +28,14 @@ const productSchema = new mongoose.Schema(
       min: [0, 'Discounted price cannot be negative'],
       default: null,
     },
+    costPrice: {
+      type: Number,
+      required: true,
+    },
     category: {
       type: String,
       required: [true, 'Category is required'],
-      enum: ['men','women','kids','accessories','footwear','outerwear','activewear','formals','ethnic','others'],
+      enum: ['men', 'women', 'kids', 'accessories', 'footwear', 'outerwear', 'activewear', 'formals', 'ethnic', 'others'],
     },
     brand: { type: String, trim: true },
     images: [
