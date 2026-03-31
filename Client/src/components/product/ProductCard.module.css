@@ -1,7 +1,12 @@
+/* ── Wrapper (position context for popup) ─────────────────────────────────── */
+.cardWrap { position: relative; }
+
+/* ── Card ─────────────────────────────────────────────────────────────────── */
 .card { display: block; color: inherit; }
 .card:hover .img { transform: scale(1.04); }
 .card:hover .quickAdd { opacity: 1; transform: translateY(0); }
 
+/* Image */
 .imgWrap {
   position: relative; overflow: hidden;
   border-radius: var(--radius-lg); background: var(--surface);
@@ -9,17 +14,22 @@
 }
 .img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
 
+/* Badges */
 .discountBadge {
   position: absolute; top: .75rem; left: .75rem;
   background: var(--danger); color: #fff;
-  font-size: .72rem; font-weight: 700; letter-spacing: .03em;
+  font-size: .7rem; font-weight: 700; letter-spacing: .03em;
   padding: .2rem .55rem; border-radius: 50px;
 }
 .outOfStock {
-  position: absolute; inset: 0; background: rgba(255,255,255,.7);
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,.72);
   display: flex; align-items: center; justify-content: center;
   font-size: .85rem; font-weight: 600; color: var(--muted);
+  border-radius: var(--radius-lg);
 }
+
+/* Quick-add button */
 .quickAdd {
   position: absolute; bottom: .75rem; left: .75rem; right: .75rem;
   display: flex; align-items: center; justify-content: center; gap: .4rem;
@@ -27,14 +37,82 @@
   border-radius: var(--radius); padding: .65rem;
   font-size: .82rem; font-weight: 600;
   opacity: 0; transform: translateY(6px);
-  transition: opacity .2s, transform .2s;
+  transition: opacity .2s, transform .2s, background .15s;
   border: none; cursor: pointer;
 }
-.quickAdd:disabled { background: var(--muted); cursor: not-allowed; }
+.quickAdd:disabled { opacity: .7 !important; cursor: not-allowed; }
+.quickAddDone { background: var(--success) !important; opacity: 1 !important; transform: translateY(0) !important; }
 
+/* Info */
 .info { padding: .85rem .1rem 0; }
-.brand { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .2rem; }
-.name { font-size: .95rem; font-weight: 500; margin-bottom: .35rem; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.brand { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .2rem; font-weight: 600; }
+.name  { font-size: .95rem; font-weight: 500; margin-bottom: .35rem; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .priceRow { display: flex; align-items: center; gap: .5rem; margin-top: .4rem; }
 .price { font-size: 1rem; font-weight: 700; }
 .originalPrice { font-size: .85rem; color: var(--muted); text-decoration: line-through; }
+
+/* ── Size Picker Popup ─────────────────────────────────────────────────────── */
+.sizePopup {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0; right: 0;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  animation: popupIn .18s ease;
+}
+@keyframes popupIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sizePopupHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: .75rem;
+}
+.sizePopupTitle { font-size: .85rem; font-weight: 700; }
+.sizePopupClose {
+  color: var(--muted); display: flex; align-items: center;
+  padding: .2rem; border-radius: 4px; transition: all .15s;
+}
+.sizePopupClose:hover { color: var(--text); background: var(--surface); }
+
+.sizeGrid {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+
+.sizeBtn {
+  min-width: 42px; height: 42px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  font-size: .82rem; font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1px; padding: 0 .5rem;
+  position: relative;
+}
+.sizeBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+.sizeBtnOut {
+  opacity: .35; cursor: not-allowed;
+  text-decoration: line-through;
+}
+.sizeOut { font-size: .6rem; color: var(--danger); font-weight: 500; }
+.sizeLow { font-size: .58rem; color: var(--warning); font-weight: 600; }
+
+.sizeHint { font-size: .72rem; color: var(--muted); margin-top: .65rem; }
+.sizeHint a { color: var(--text); font-weight: 500; text-decoration: underline; }
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .sizePopup { position: fixed; bottom: 0; left: 0; right: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+}
