@@ -384,9 +384,10 @@ export default function AdminProducts() {
                         <p style={{ fontWeight: 700 }}>{formatPrice(p.costPrice ?? 0)}</p>
                         {p.costPrice && p.price && (
                           <p className="form-hint" style={{ color: parseFloat(p.price) > parseFloat(p.costPrice) ? 'var(--success)' : 'var(--danger)' }}>
-                            {parseFloat(form.price) > parseFloat(form.costPrice)
+                            {parseFloat(p.price) > parseFloat(p.costPrice)
                               ? 'Profit: ' + Math.round(((parseFloat(p.discountedPrice || p.price) - parseFloat(p.costPrice)) / parseFloat(p.discountedPrice || p.price)) * 100) + '% margin'
-                              : '⚠️ Selling below cost price!'}
+                              : '⚠️ Selling below cost price!'
+                            }
                           </p>
                         )}
                       </td>
