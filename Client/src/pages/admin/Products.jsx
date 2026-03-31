@@ -5,6 +5,7 @@ import Modal from '../../components/common/Modal';
 import Pagination from '../../components/common/Pagination';
 import Spinner from '../../components/common/Spinner';
 import { productAPI } from '../../api/products';
+import { adminAPI } from '../../api/index';
 import { formatPrice, primaryImage } from '../../utils/helpers';
 import styles from './AdminTable.module.css';
 import imgStyles from './ProductImages.module.css';
@@ -12,15 +13,15 @@ import imgStyles from './ProductImages.module.css';
 const EMPTY_FORM = {
   name: '', description: '', price: '', discountedPrice: '', costPrice: '',
   category: 'men', brand: '', isFeatured: false,
-  sizes: [{ size: 'S', stock: 10 }, { size: 'M', stock: 10 }, { size: 'L', stock: 10 }],
+  sizes:  [{ size: 'S', stock: 10 }, { size: 'M', stock: 10 }, { size: 'L', stock: 10 }],
   images: [{ url: '', alt: '', isPrimary: true }],
 };
-const CATEGORIES = ['men', 'women', 'kids', 'accessories', 'footwear', 'outerwear', 'activewear', 'formals', 'ethnic', 'others'];
+const CATEGORIES = ['men','women','kids','accessories','footwear','outerwear','activewear','formals','ethnic','others'];
 
 // ── Image Manager ──────────────────────────────────────────────────────────────
 function ImageManager({ images, onChange }) {
   const [bulkInput, setBulkInput] = useState('');
-  const [showBulk, setShowBulk] = useState(false);
+  const [showBulk,  setShowBulk]  = useState(false);
 
   // Paste multiple comma/newline separated URLs at once
   const handleBulkAdd = () => {
@@ -31,9 +32,9 @@ function ImageManager({ images, onChange }) {
 
     if (urls.length === 0) { toast.error('No valid URLs found.'); return; }
 
-    const current = images.filter(img => img.url.trim());
-    const remaining = 6 - current.length;
-    const toAdd = urls.slice(0, remaining).map((url, i) => ({
+    const current    = images.filter(img => img.url.trim());
+    const remaining  = 6 - current.length;
+    const toAdd      = urls.slice(0, remaining).map((url, i) => ({
       url,
       alt: '',
       isPrimary: current.length === 0 && i === 0,
@@ -229,23 +230,23 @@ function ImageManager({ images, onChange }) {
 
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function AdminProducts() {
-  const [products, setProducts] = useState([]);
+  const [products,   setProducts]   = useState([]);
   const [pagination, setPagination] = useState({ totalPages: 1 });
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
+  const [page,       setPage]       = useState(1);
+  const [search,     setSearch]     = useState('');
+  const [loading,    setLoading]    = useState(true);
+  const [modal,      setModal]      = useState(false);
+  const [editing,    setEditing]    = useState(null);
+  const [form,       setForm]       = useState(EMPTY_FORM);
+  const [saving,     setSaving]     = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await productAPI.getAll({ page, limit: 10, ...(search && { search }) });
+      const { data } = await adminAPI.getProducts({ page, limit: 10, ...(search && { search }) });
       setProducts(data.data);
       setPagination(data.pagination);
-    } catch { }
+    } catch {}
     finally { setLoading(false); }
   }, [page, search]);
 
@@ -256,16 +257,15 @@ export default function AdminProducts() {
   const openEdit = (p) => {
     setEditing(p);
     setForm({
-      name: p.name,
-      description: p.description,
-      price: p.price,
+      name:            p.name,
+      description:     p.description,
+      price:           p.price,
       discountedPrice: p.discountedPrice || '',
-      costPrice: p.costPrice || '',
-      category: p.category,
-      brand: p.brand || '',
-      isFeatured: p.isFeatured,
-      sizes: p.sizes?.length ? p.sizes : EMPTY_FORM.sizes,
-      images: p.images?.length ? p.images : EMPTY_FORM.images,
+      category:        p.category,
+      brand:           p.brand || '',
+      isFeatured:      p.isFeatured,
+      sizes:           p.sizes?.length  ? p.sizes  : EMPTY_FORM.sizes,
+      images:          p.images?.length ? p.images : EMPTY_FORM.images,
     });
     setModal(true);
   };
@@ -280,11 +280,11 @@ export default function AdminProducts() {
     try {
       const payload = {
         ...form,
-        price: parseFloat(form.price),
+        price:           parseFloat(form.price),
         discountedPrice: form.discountedPrice ? parseFloat(form.discountedPrice) : null,
-        costPrice: parseFloat(form.costPrice),
-        sizes: form.sizes.map(s => ({ ...s, stock: parseInt(s.stock) })),
-        images: validImages,
+        costPrice: form.costPrice ? parseFloat(form.costPrice) : null,
+        sizes:           form.sizes.map(s => ({ ...s, stock: parseInt(s.stock) })),
+        images:          validImages,
       };
       if (editing) {
         await productAPI.update(editing._id, payload);
@@ -342,6 +342,7 @@ export default function AdminProducts() {
               <thead>
                 <tr>
                   <th>Product</th><th>Category</th><th>Price</th>
+                  <th>Cost / Margin</th>
                   <th>Images</th><th>Stock</th><th>Featured</th>
                   <th>Status</th><th style={{ width: 100 }}>Actions</th>
                 </tr>
@@ -363,7 +364,7 @@ export default function AdminProducts() {
                               />
                             ))}
                             {(p.images?.length || 0) > 3 && (
-                              <div style={{ width: 44, height: 55, borderRadius: 6, background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.7rem', color: 'var(--muted)', fontWeight: 700 }}>
+                              <div style={{ width:44,height:55,borderRadius:6,background:'var(--surface)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'.7rem',color:'var(--muted)',fontWeight:700 }}>
                                 +{p.images.length - 3}
                               </div>
                             )}
@@ -377,22 +378,18 @@ export default function AdminProducts() {
                       <td><span className="badge badge-neutral">{p.category}</span></td>
                       <td>
                         <p style={{ fontWeight: 700 }}>{formatPrice(p.discountedPrice ?? p.price)}</p>
-                        {p.discountedPrice && <p style={{ fontSize: '.78rem', color: 'var(--muted)', textDecoration: 'line-through' }}>{formatPrice(p.price)}</p>}
-                      </td>
-                      <td>
-                        <p style={{ fontWeight: 700 }}>{formatPrice(p.costPrice ?? '')}</p>
-                        {p.costPrice && <p style={{ fontSize: '.78rem', color: 'var(--muted)', textDecoration: 'line-through' }}>{formatPrice(p.price)}</p>}
+                        {p.discountedPrice && <p style={{ fontSize:'.78rem',color:'var(--muted)',textDecoration:'line-through' }}>{formatPrice(p.price)}</p>}
                       </td>
                       <td>
                         <span className="badge badge-neutral">{p.images?.length || 0} imgs</span>
                       </td>
                       <td>
-                        <span className={`badge ${stock === 0 ? 'badge-danger' : stock < 5 ? 'badge-warning' : 'badge-success'}`}>
+                        <span className={`badge ${stock===0?'badge-danger':stock<5?'badge-warning':'badge-success'}`}>
                           {stock} units
                         </span>
                       </td>
                       <td>{p.isFeatured ? <ToggleRight size={20} color="var(--success)" /> : <ToggleLeft size={20} color="var(--muted)" />}</td>
-                      <td><span className={`badge ${p.isActive ? 'badge-success' : 'badge-danger'}`}>{p.isActive ? 'Active' : 'Inactive'}</span></td>
+                      <td><span className={`badge ${p.isActive?'badge-success':'badge-danger'}`}>{p.isActive?'Active':'Inactive'}</span></td>
                       <td>
                         <div className={styles.actions}>
                           <button className="btn btn-ghost btn-sm" onClick={() => openEdit(p)}><Pencil size={14} /></button>
@@ -437,8 +434,20 @@ export default function AdminProducts() {
               <input className="form-input" type="number" min="0" step="0.01" value={form.discountedPrice} onChange={e => setForm(f => ({ ...f, discountedPrice: e.target.value }))} />
             </div>
             <div className="form-group">
-              <label className="form-label">Cost Price (₹)</label>
-              <input className="form-input" type="number" min="0" step="0.01" value={form.costPrice} onChange={e => setForm(f => ({ ...f, costPrice: e.target.value }))} />
+              <label className="form-label">Cost Price (₹) <span style={{fontSize:'.75rem',color:'var(--muted)'}}>Admin only</span></label>
+              <input
+                className="form-input" type="number" min="0" step="0.01"
+                placeholder="Your purchase cost"
+                value={form.costPrice}
+                onChange={(e) => setForm(f => ({ ...f, costPrice: e.target.value }))}
+              />
+              {form.costPrice && form.price && (
+                <p className="form-hint" style={{color: parseFloat(form.price) > parseFloat(form.costPrice) ? 'var(--success)' : 'var(--danger)'}}>
+                  {parseFloat(form.price) > parseFloat(form.costPrice)
+                    ? 'Profit: ' + Math.round(((parseFloat(form.discountedPrice || form.price) - parseFloat(form.costPrice)) / parseFloat(form.discountedPrice || form.price)) * 100) + '% margin'
+                    : '⚠️ Selling below cost price!'}
+                </p>
+              )}
             </div>
             <div className="form-group">
               <label className="form-label">Category *</label>
@@ -456,7 +465,7 @@ export default function AdminProducts() {
 
           {/* ── Sizes ── */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '.5rem' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'.5rem' }}>
               <label className="form-label" style={{ margin: 0 }}>Sizes & Stock</label>
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => setForm(f => ({ ...f, sizes: [...f.sizes, { size: '', stock: 0 }] }))}>
                 <Plus size={13} /> Add Size

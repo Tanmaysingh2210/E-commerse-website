@@ -1,43 +1,78 @@
 .layout { display: grid; grid-template-columns: 1fr 360px; gap: 2.5rem; align-items: start; }
 
-/* Items */
-.items { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-.item { display: grid; grid-template-columns: 100px 1fr auto; gap: 1.25rem; padding: 1.25rem; border-bottom: 1px solid var(--border); align-items: center; }
-.item:last-child { border-bottom: none; }
-.itemImg { width: 100px; height: 125px; object-fit: cover; border-radius: var(--radius); background: var(--surface); }
-.itemInfo { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
-.itemName { font-weight: 600; font-size: .95rem; line-height: 1.35; }
-.itemName:hover { text-decoration: underline; }
-.itemMeta { font-size: .82rem; color: var(--muted); }
-.itemPrice { font-size: .95rem; font-weight: 500; margin-top: .25rem; }
+.steps { display: flex; gap: 0; margin-bottom: 2rem; }
+.step { display: flex; align-items: center; gap: .5rem; font-size: .85rem; font-weight: 500; color: var(--muted); flex: 1; }
+.step:not(:last-child)::after { content: ''; flex: 1; height: 1.5px; background: var(--border); margin: 0 .75rem; }
+.stepActive { color: var(--text); }
+.stepNum { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; flex-shrink: 0; transition: all .2s; }
+.stepActive .stepNum { border-color: var(--accent); background: var(--accent); color: #fff; }
 
-.itemActions { display: flex; flex-direction: column; align-items: flex-end; gap: .75rem; }
-.qty { display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-.qty button { width: 34px; height: 34px; font-size: 1rem; font-weight: 500; transition: background .15s; }
-.qty button:hover:not(:disabled) { background: var(--surface); }
-.qty button:disabled { opacity: .35; cursor: not-allowed; }
-.qty span { width: 38px; text-align: center; font-weight: 600; font-size: .9rem; }
-.lineTotal { font-weight: 700; font-size: .95rem; }
-.removeBtn { color: var(--muted); display: flex; padding: .25rem; border-radius: 4px; transition: color .15s; }
-.removeBtn:hover { color: var(--danger); }
+.formCard { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 1.25rem; transition: opacity .2s; }
+.collapsed { opacity: .6; pointer-events: none; }
+.formTitle { font-size: 1.05rem; font-weight: 700; margin-bottom: 1.25rem; }
+.formGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.full { grid-column: 1 / -1; }
+
+.payMethods { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1.25rem; }
+.payOption { display: flex; align-items: center; gap: .9rem; padding: 1rem 1.25rem; border: 2px solid var(--border); border-radius: var(--radius-lg); cursor: pointer; transition: border-color .15s; }
+.payOption input { display: none; }
+.payActive { border-color: var(--accent); background: var(--surface); }
+.payLabel { font-weight: 600; font-size: .9rem; }
+.payDesc { font-size: .78rem; color: var(--muted); }
+
+.secureNote { display: flex; align-items: center; gap: .4rem; font-size: .78rem; color: var(--muted); }
 
 /* Summary */
 .summary { position: sticky; top: 80px; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; }
-.summaryTitle { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; }
-
-.couponForm { display: flex; gap: .5rem; }
-.couponApplied { display: flex; align-items: center; justify-content: space-between; background: #dcfce7; border-radius: var(--radius); padding: .65rem .9rem; }
-.couponApplied div { display: flex; align-items: center; gap: .5rem; font-size: .88rem; color: var(--success); }
-.couponApplied button { color: var(--success); display: flex; }
-
-.summaryRows { display: flex; flex-direction: column; gap: .65rem; }
-.summaryRow { display: flex; justify-content: space-between; font-size: .9rem; color: var(--muted); }
-.discount { color: var(--success); }
-.freeShippingNote { font-size: .78rem; color: var(--muted); margin-top: .5rem; text-align: center; }
-.totalRow { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.1rem; }
+.summaryTitle { font-weight: 700; margin-bottom: 1.25rem; }
+.summaryItems { display: flex; flex-direction: column; gap: .85rem; }
+.summaryItem { display: flex; align-items: center; gap: .85rem; }
+.summaryImgWrap { position: relative; flex-shrink: 0; }
+.summaryImgWrap img { width: 52px; height: 65px; object-fit: cover; border-radius: var(--radius); background: var(--surface); }
+.qtyBadge { position: absolute; top: -7px; right: -7px; background: var(--accent); color: #fff; font-size: .65rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.summaryItemInfo { flex: 1; min-width: 0; font-size: .85rem; font-weight: 500; }
+.meta { font-size: .75rem; color: var(--muted); margin-top: .1rem; }
+.rows { display: flex; flex-direction: column; gap: .6rem; }
+.row { display: flex; justify-content: space-between; font-size: .88rem; color: var(--muted); }
+.green { color: var(--success); }
+.totalRow { display: flex; justify-content: space-between; font-size: 1.05rem; font-weight: 600; }
 
 @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .summary { position: static; } }
-@media (max-width: 560px) {
-  .item { grid-template-columns: 80px 1fr; }
-  .itemActions { flex-direction: row; align-items: center; grid-column: 1 / -1; }
+@media (max-width: 560px) { .formGrid { grid-template-columns: 1fr; } .full { grid-column: 1; } }
+
+/* ── UPI additions ─────────────────────────────────────────────────────────── */
+.discountTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #7c3aed;
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 700;
+  padding: .15rem .45rem;
+  border-radius: 50px;
+  letter-spacing: .04em;
+}
+
+.upiSavingsBanner {
+  background: #f3e8ff;
+  border: 1.5px solid #c4b5fd;
+  color: #6d28d9;
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+  font-size: .88rem;
+  margin: .75rem 0 0;
+  text-align: center;
+}
+
+.purple {
+  color: #7c3aed !important;
+}
+
+.savingsNote {
+  text-align: center;
+  font-size: .8rem;
+  color: #7c3aed;
+  margin-top: .75rem;
+  font-weight: 500;
 }

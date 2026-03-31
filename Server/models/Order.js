@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const orderItemSchema = new mongoose.Schema({
-  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+  product:  { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   name:     { type: String, required: true },
   image:    { type: String },
   price:    { type: Number, required: true },
@@ -22,22 +22,27 @@ const shippingAddressSchema = new mongoose.Schema({
 
 const orderSchema = new mongoose.Schema(
   {
-    orderNumber: {
-      type: String,
-      unique: true,   // unique:true handles the index — no schema.index() needed
-    },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    items: [orderItemSchema],
+    orderNumber: { type: String, unique: true },
+    user:        { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    items:       [orderItemSchema],
     shippingAddress: { type: shippingAddressSchema, required: true },
 
+    // ── Pricing breakdown ──────────────────────────────────────────────────────
     subtotal:       { type: Number, required: true },
     shippingCharge: { type: Number, default: 0 },
-    discount:       { type: Number, default: 0 },
+    discount:       { type: Number, default: 0 },   // coupon discount
+    upiDiscount:    { type: Number, default: 0 },   // UPI payment discount
     total:          { type: Number, required: true },
 
+    // ── Coupon ────────────────────────────────────────────────────────────────
     coupon: { code: String, discountAmount: Number },
 
-    paymentMethod: { type: String, enum: ['razorpay', 'cod'], required: true },
+    // ── Payment ───────────────────────────────────────────────────────────────
+    paymentMethod: {
+      type: String,
+      enum: ['razorpay', 'upi', 'cod'],  // upi = Razorpay with UPI discount
+      required: true,
+    },
     paymentStatus: {
       type: String,
       enum: ['pending', 'paid', 'failed', 'refunded'],
@@ -47,6 +52,7 @@ const orderSchema = new mongoose.Schema(
     razorpayPaymentId: { type: String },
     razorpaySignature: { type: String, select: false },
 
+    // ── Order Status ──────────────────────────────────────────────────────────
     status: {
       type: String,
       enum: ['pending','confirmed','processing','shipped','delivered','cancelled','refunded'],
@@ -70,19 +76,18 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ── Indexes — orderNumber is handled by unique:true, NOT repeated here ─────────
+// ── Indexes ────────────────────────────────────────────────────────────────────
 orderSchema.index({ user: 1, createdAt: -1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ razorpayOrderId: 1 });
-// orderNumber index is handled by unique:true above
 
 // ── Pre-save: Auto-generate order number ───────────────────────────────────────
 orderSchema.pre('save', async function (next) {
   if (!this.orderNumber) {
-    const date = new Date();
-    const prefix = `ORD${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const date   = new Date();
+    const prefix = 'ORD' + date.getFullYear() + String(date.getMonth() + 1).padStart(2, '0');
     const random = Math.floor(10000 + Math.random() * 90000);
-    this.orderNumber = `${prefix}${random}`;
+    this.orderNumber = prefix + random;
   }
   next();
 });

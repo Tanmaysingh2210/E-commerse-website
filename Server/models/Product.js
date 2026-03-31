@@ -10,7 +10,7 @@ const productSchema = new mongoose.Schema(
     },
     slug: {
       type: String,
-      unique: true,     // unique:true creates the index — remove schema.index({ slug:1 })
+      unique: true,
       lowercase: true,
     },
     description: {
@@ -28,33 +28,36 @@ const productSchema = new mongoose.Schema(
       min: [0, 'Discounted price cannot be negative'],
       default: null,
     },
+    // ── Admin-only: cost price (hidden from public API) ──────────────────────
     costPrice: {
       type: Number,
-      required: true,
+      min: [0, 'Cost price cannot be negative'],
+      default: null,
+      select: false,   // Never returned in public queries — must explicitly request
     },
     category: {
       type: String,
       required: [true, 'Category is required'],
-      enum: ['men', 'women', 'kids', 'accessories', 'footwear', 'outerwear', 'activewear', 'formals', 'ethnic', 'others'],
+      enum: ['men','women','kids','accessories','footwear','outerwear','activewear','formals','ethnic','others'],
     },
-    brand: { type: String, trim: true },
+    brand:  { type: String, trim: true },
     images: [
       {
-        url: { type: String, required: true },
-        alt: { type: String, default: '' },
+        url:       { type: String, required: true },
+        alt:       { type: String, default: '' },
         isPrimary: { type: Boolean, default: false },
       },
     ],
     sizes: [
       {
-        size: { type: String, required: true },
+        size:  { type: String, required: true },
         stock: { type: Number, required: true, min: 0, default: 0 },
       },
     ],
-    colors: [{ name: String, hex: String }],
-    tags: [{ type: String, lowercase: true, trim: true }],
+    colors:    [{ name: String, hex: String }],
+    tags:      [{ type: String, lowercase: true, trim: true }],
     isFeatured: { type: Boolean, default: false },
-    isActive: { type: Boolean, default: true },
+    isActive:   { type: Boolean, default: true },
     averageRating: {
       type: Number,
       default: 0,
@@ -62,25 +65,24 @@ const productSchema = new mongoose.Schema(
       max: 5,
       set: (val) => Math.round(val * 10) / 10,
     },
-    reviewCount: { type: Number, default: 0 },
-    metaTitle: { type: String },
+    reviewCount:     { type: Number, default: 0 },
+    metaTitle:       { type: String },
     metaDescription: { type: String },
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
+    toJSON:   { virtuals: true },
     toObject: { virtuals: true },
   }
 );
 
-// ── Indexes — only fields NOT already indexed via unique:true ──────────────────
+// ── Indexes ────────────────────────────────────────────────────────────────────
 productSchema.index({ name: 'text', description: 'text', tags: 'text' });
 productSchema.index({ category: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ averageRating: -1 });
 productSchema.index({ isFeatured: 1, isActive: 1 });
 productSchema.index({ createdAt: -1 });
-// slug index is handled by unique:true above — NOT repeated here
 
 // ── Virtuals ───────────────────────────────────────────────────────────────────
 productSchema.virtual('effectivePrice').get(function () {
@@ -99,6 +101,13 @@ productSchema.virtual('discountPercent').get(function () {
   return 0;
 });
 
+// ── Virtual: profit margin (only meaningful when costPrice is selected) ────────
+productSchema.virtual('profitMargin').get(function () {
+  if (!this.costPrice) return null;
+  const sellPrice = this.discountedPrice ?? this.price;
+  return Math.round(((sellPrice - this.costPrice) / sellPrice) * 100);
+});
+
 // ── Pre-save: Auto-generate slug ───────────────────────────────────────────────
 productSchema.pre('save', function (next) {
   if (this.isModified('name')) {
@@ -109,8 +118,7 @@ productSchema.pre('save', function (next) {
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-')
         .trim() +
-      '-' +
-      this._id.toString().slice(-6);
+      '-' + this._id.toString().slice(-6);
   }
   next();
 });
