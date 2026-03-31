@@ -129,8 +129,8 @@ ul { list-style: none; }
 .stars { display: flex; gap: 2px; color: #f59e0b; }
 
 /* ── Section spacing ───────────────────────────────────────────────────────── */
-.section { padding: 4rem 0; }
-.section-sm { padding: 2rem 0; }
+.section { padding: 1rem 0; }
+.section-sm { padding: 0.5rem 0; }
 
 /* ── Page header ───────────────────────────────────────────────────────────── */
 .page-header { padding: 2.5rem 0 1.5rem; }
