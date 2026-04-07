@@ -1,27 +1,70 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-// In production (Vercel): VITE_API_URL = https://drip-backend-3alw.onrender.com/api
-// In development (local): falls back to /api which Vite proxies to localhost:5000
 var BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
+// ── Decode JWT payload without a library ──────────────────────────────────────
+function decodeToken(token) {
+  try {
+    var payload = token.split('.')[1];
+    var decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    return decoded;
+  } catch {
+    return null;
+  }
+}
+
+// ── Check if token expires within the next N seconds ─────────────────────────
+function isTokenExpiringSoon(token, withinSeconds) {
+  var decoded = decodeToken(token);
+  if (!decoded || !decoded.exp) return true;
+  var now     = Math.floor(Date.now() / 1000);
+  return decoded.exp - now < withinSeconds;
+}
 
 var api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: false,   // using Bearer tokens, not cookies — keep false always
+  withCredentials: false,
   headers: { 'Content-Type': 'application/json' },
   timeout: 30000,
 });
 
-// Attach Bearer token to every request
-api.interceptors.request.use(function(config) {
-  var token = localStorage.getItem('accessToken');
-  if (token) {
-    config.headers.Authorization = 'Bearer ' + token;
+// ── Request interceptor: attach token + proactive refresh ─────────────────────
+api.interceptors.request.use(async function(config) {
+  var token        = localStorage.getItem('accessToken');
+  var refreshToken = localStorage.getItem('refreshToken');
+
+  // Proactively refresh if token expires within 2 minutes
+  // This prevents mid-request 401s for users actively using the app
+  if (
+    token &&
+    refreshToken &&
+    isTokenExpiringSoon(token, 120) &&           // expires in < 2 min
+    !config.url.includes('/auth/refresh') &&
+    !config.url.includes('/auth/login')
+  ) {
+    try {
+      var r = await axios.post(BASE_URL + '/auth/refresh',
+        { refreshToken: refreshToken },
+        { headers: { 'Content-Type': 'application/json' }, withCredentials: false }
+      );
+      token = r.data.accessToken;
+      localStorage.setItem('accessToken', token);
+      if (r.data.refreshToken) localStorage.setItem('refreshToken', r.data.refreshToken);
+    } catch {
+      // Refresh failed — clear tokens and force logout
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      window.dispatchEvent(new Event('auth:logout'));
+      return Promise.reject(new Error('Session expired'));
+    }
   }
+
+  if (token) config.headers.Authorization = 'Bearer ' + token;
   return config;
 });
 
-// Auto-refresh on 401
+// ── Response interceptor: reactive refresh on 401 ────────────────────────────
 var isRefreshing = false;
 var queue = [];
 
@@ -35,13 +78,11 @@ api.interceptors.response.use(
   async function(error) {
     var original = error.config;
     var status   = error.response ? error.response.status : null;
-    var url      = original ? original.url : '';
+    var url      = original ? (original.url || '') : '';
 
-    // Auto-refresh on 401 (except on auth endpoints themselves)
     if (
       status === 401 &&
       !original._retry &&
-      url &&
       !url.includes('/auth/refresh') &&
       !url.includes('/auth/login') &&
       !url.includes('/auth/register')
@@ -60,11 +101,19 @@ api.interceptors.response.use(
 
       var storedRefresh = localStorage.getItem('refreshToken');
 
+      if (!storedRefresh) {
+        // No refresh token — just logout
+        localStorage.removeItem('accessToken');
+        window.dispatchEvent(new Event('auth:logout'));
+        isRefreshing = false;
+        return Promise.reject(error);
+      }
+
       try {
-        var r = await axios.post(BASE_URL + '/auth/refresh', { refreshToken: storedRefresh }, {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: false,
-        });
+        var r = await axios.post(BASE_URL + '/auth/refresh',
+          { refreshToken: storedRefresh },
+          { headers: { 'Content-Type': 'application/json' }, withCredentials: false }
+        );
         var newToken = r.data.accessToken;
         localStorage.setItem('accessToken', newToken);
         if (r.data.refreshToken) localStorage.setItem('refreshToken', r.data.refreshToken);
@@ -83,9 +132,8 @@ api.interceptors.response.use(
       }
     }
 
-    // Don't show toast for auth endpoint errors (handled by each page)
     var silentUrls = ['/auth/login', '/auth/register', '/auth/refresh'];
-    var isSilent   = silentUrls.some(function(u) { return url && url.includes(u); });
+    var isSilent   = silentUrls.some(function(u) { return url.includes(u); });
 
     if (!isSilent && status && status !== 401) {
       var msg = error.response && error.response.data && error.response.data.message
